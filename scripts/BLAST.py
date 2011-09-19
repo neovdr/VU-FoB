@@ -1,5 +1,5 @@
 # Fundamentals of Bioinformatics
-# Execrise 5
+# Exercise 5
 # Get matching sequences using NCBI BLAST
 
 from time import sleep
