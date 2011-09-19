@@ -1,0 +1,5 @@
+========================================
+How to run BLAST:
+
+cd run/blast
+python ../../scripts/BLAST.py
