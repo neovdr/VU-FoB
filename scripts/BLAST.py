@@ -6,7 +6,7 @@ from time import sleep
 import re
 import urllib2 
 
-def matching_sequences(protein_id):
+def blast(protein_id):
         baseUrl = 'http://blast.ncbi.nlm.nih.gov/Blast.cgi?CMD=Put&QUERY='
         url = baseUrl + protein_id + '&DATABASE=swissprot&PROGRAM=blastp&FILTER=T&EXPECT=100&FORMAT_TYPE=Text'
         fh = urllib2.urlopen(url)
@@ -36,7 +36,8 @@ def matching_sequences(protein_id):
             fh.close()
 
             # Find a comment with the request status. It looks like this:
-            # <!--QBlastInfoBegin
+            # <!--
+            # QBlastInfoBegin
             #     Status=WAITING
             # QBlastInfoEnd
             # -->
@@ -44,12 +45,13 @@ def matching_sequences(protein_id):
             status = m.groups()[0]
             wait_time = 60
 
-        return result
+        m = re.search("^<PRE>(.*)^</PRE>", result, re.MULTILINE + re.DOTALL)
+        return m.groups()[0]
 
 f = open('proteins.txt', 'r') 
 for line in f:
     protein_id = line.strip("\n")
     output = protein_id + "_BLASTR.txt" 
     o = open(output, 'w') 
-    o.write(matching_sequences(protein_id)) 
+    o.write(blast(protein_id)) 
     o.close() 
