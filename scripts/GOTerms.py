@@ -1,7 +1,6 @@
 import string
 import re
 import urllib2
-import ppprint
 
 class GOTerm:
     """A single GO term supported by one or more evidence"""
@@ -12,6 +11,12 @@ class GOTerm:
 
     def add_evidence(self, eclass, ref):
         self.evidence.append( (ref, eclass) )
+
+    def __str__(self):
+        f = self.name
+        for e in self.evidence:
+            f += " " + str(e)
+        return f
 
 class GOTerms:
     """Holds the GO term of a protein"""
@@ -30,19 +35,22 @@ class GOTerms:
         new_term.add_evidence(evidence_class, evidence_ref)
         self.terms.append(new_term)
 
-    def format(self):
+    def __str__(self):
         f = "Protein ID: " + self.protein_id + "\n"
-        a = []
-        for t in tems:
-            a = 
+        f += "Terms:\n"
+        for t in self.terms:
+            f += "    " + str(t) + "\n"
+        return f
         
 
 def getGOTerms(protein_id):
+    """Get the GO terms for and uniprot protein id"""
     baseUrl = 'http://www.ebi.ac.uk/QuickGO/GAnnotation?protein='
     url = baseUrl + protein_id + '&format=tsv'	
     fh = urllib2.urlopen(url)
 
     terms = GOTerms(protein_id)
+    fh.next() # skip headers
     for line in fh:
         r = re.split("\t", line)
         terms.add_term(r[6], r[7], r[9], r[8])
@@ -54,4 +62,4 @@ def getGOTerms(protein_id):
 
 f = open('proteins.txt', 'r')
 for line in f:
-    getGOTerms(line.strip("\n"))
+    print getGOTerms(line.strip("\n"))
