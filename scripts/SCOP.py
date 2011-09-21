@@ -16,6 +16,6 @@ def get_pdbs(protein_id):
             pdbs.append(fields[1].strip())
     return pdbs
 
-pdb = get_pdbs('P08046')[0]
-
-
+if __name__ == "__main__":
+    pdb = get_pdbs('P08046')[0]
+    print pdb
