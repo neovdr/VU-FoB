@@ -1,43 +1,51 @@
 import string
 import re
 import urllib2
+import ppprint
 
 class GOTerm:
     """A single GO term supported by one or more evidence"""
-    def ___init___(self, go_id, name):
+    def __init__(self, go_id, name):
         self.go_id = go_id
         self.name = name
-        evidence = []
+        self.evidence = []
 
     def add_evidence(self, eclass, ref):
-        evidence.append (ref, eclass)
+        self.evidence.append( (ref, eclass) )
 
 class GOTerms:
     """Holds the GO term of a protein"""
-    def ___init___(self, protein_id):
+    def __init__(self, protein_id):
         self.protein_id = protein_id
         self.terms = []
 
     def add_term(self, go_id, name, evidence_class, evidence_ref):
         #search for term
-        for term in this.terms:
+        for term in self.terms:
             if term.go_id == go_id:
                 term.add_evidence(evidence_class, evidence_ref)
                 return
         #term not found, so add it to the list
-        new_term = GoTerm(go_id, name)
+        new_term = GOTerm(go_id, name)
         new_term.add_evidence(evidence_class, evidence_ref)
         self.terms.append(new_term)
 
-def getGOTerms(proteinid):
+    def format(self):
+        f = "Protein ID: " + self.protein_id + "\n"
+        a = []
+        for t in tems:
+            a = 
+        
+
+def getGOTerms(protein_id):
     baseUrl = 'http://www.ebi.ac.uk/QuickGO/GAnnotation?protein='
-    url = baseUrl + proteinid + '&format=tsv'	
+    url = baseUrl + protein_id + '&format=tsv'	
     fh = urllib2.urlopen(url)
 
-    terms = GoTerms(protein_id)
+    terms = GOTerms(protein_id)
     for line in fh:
         r = re.split("\t", line)
-        add_term(r[6], r[7], r[9], r[8])
+        terms.add_term(r[6], r[7], r[9], r[8])
         aspect = r[11]
 
 
