@@ -1,6 +1,6 @@
 
 === Biological Background ===
-* literature on threshold
+* literature on threshold of e value BLAST
 
 == Scripts ===
 * filter on evidence in GOTerms
@@ -8,10 +8,11 @@
     - protein id
     - e-value
     - score bits
-* filter on e-value
+* filter on e-value in BLAST
 * research what first result in BLAST means
 * datastructure pfam
 * make pfam work for list of proteins
+* parse SCOP
 
 === Report ===
 * Questions pfam
