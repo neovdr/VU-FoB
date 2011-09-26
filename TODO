@@ -1,0 +1,20 @@
+
+=== Biological Background ===
+* literature on threshold
+
+== Scripts ===
+* filter on evidence in GOTerms
+* parse blast to get a list of hits with
+    - protein id
+    - e-value
+    - score bits
+* filter on e-value
+* research what first result in BLAST means
+* datastructure pfam
+* make pfam work for list of proteins
+
+=== Report ===
+* Questions pfam
+* Questions GOTerms
+* Questions SCOP
+* Questions BLAST
