@@ -8,7 +8,7 @@ for line in f:
 	url = baseUrl + line.strip('\n')
 	fh = urllib2.urlopen(url) 
 	result = fh.read() 
-	fh.close()	 
+	fh.close()
 	output = line.strip('\n') + "_Pfam.txt"  
 	o = open(output, 'w') 
 	o.write(result) 
@@ -21,7 +21,7 @@ for line in f:
             print "No pdb for: " + line
             continue
         pdb = pdbs[0]
-	baseUrl = 'http://scop.mrc-lmb.cam.ac.uk/scop/search.cgi?pdb=' 
+	baseUrl = 'http://scop.mrc-lmb.cam.ac.uk/scop/search.cgi?lev=fa&pdb=' 
 	url = baseUrl + pdb
 	fh = urllib2.urlopen(url) 
 	result = fh.read() 
