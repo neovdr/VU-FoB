@@ -3,7 +3,6 @@
 * literature on threshold of e value BLAST
 
 == Scripts ===
-* filter on evidence in GOTerms
 * parse blast to get a list of hits with
     - protein id
     - e-value
