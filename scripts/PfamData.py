@@ -1,5 +1,4 @@
-# Paul Wackers
-# 13 september 2011
+
 # Get data from GO files
 
 # Import libraries
