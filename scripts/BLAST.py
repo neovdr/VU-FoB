@@ -57,12 +57,25 @@ def query_server(protein_id):
     o = open(output, 'w') 
     o.write(result) 
     o.close()
+    
+    return result
 
 def parse_id(s):
-    return re.split("\|", s)[3]
+    #FIXME we only deal with uniprot ids
+    cols = re.split("\|", s)
+    if cols[2] == "sp":
+        m = re.search("^(P.*)\..", cols[3])
+        if m:
+            return m.groups()[0]
+    return ""
 
 def parse_ids(s):
-    return [parse_id(id_s) for id_s in re.split(";", s)]
+    ids = []
+    for id_s in re.split(";", s):
+        i = parse_id(id_s)
+        if i != "":
+            ids.append(i)
+    return ids
 
 def parse_blast_result(s):
     lines = re.split("\n", s)
@@ -84,11 +97,11 @@ def parse_blast_result(s):
         
 def blast(protein_id):
     #first try to find a cached result
-    if (os.path.exists(os.path.join('cache', protein_id + '_BLAST.pkl'))):
-        f = open(os.path.join('cache', protein_id + '_BLAST.pkl'), 'rb')
-        p = pickle.load(f)
-        f.close()
-        return p
+#    if (os.path.exists(os.path.join('cache', protein_id + '_BLAST.pkl'))):
+#        f = open(os.path.join('cache', protein_id + '_BLAST.pkl'), 'rb')
+#        p = pickle.load(f)
+#        f.close()
+#        return p
     result = query_server(protein_id)
     #Find the result between the PRE tags
     m = re.search("^<PRE>(.*)^</PRE>", result, re.MULTILINE + re.DOTALL)
@@ -103,4 +116,4 @@ if __name__ == "__main__":
     f = open('proteins.txt', 'r') 
     for line in f:
         protein_id = line.strip("\n")
-        print blast(protein_id)[1]
+        print [r['subjects'] for r in blast(protein_id)]
