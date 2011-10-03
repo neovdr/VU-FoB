@@ -3,7 +3,6 @@
 
 # Import libraries
 import urllib2 
-import string # Library for string operations
 from xml.etree.ElementTree import parse
 sectmp= 'DUF'
 # Open a Pfam File
@@ -45,13 +44,12 @@ for line in fb:
 				#Get to the Clan entry
 				for node in secelem:
 					# Do something with the clan!
-					if (node[2].text== None):
-						print 'Clan Accesion ID: ' + node[2].attrib['clan_acc']
-						print 'Clan ID: ' + node[2].attrib['clan_id']
-					else:
-						#There is a pesky comment in the way. Look one item up
-						print 'Clan Accesion ID: ' + node[1].attrib['clan_acc']
-						print 'Clan ID: ' + node[1].attrib['clan_id']
-					
+					for e in node:
+						if (e.text != None):
+							# Ignore comments etc.
+							continue
+						print 'Clan Accesion ID: ' + e.attrib['clan_acc']
+						print 'Clan ID: ' + e.attrib['clan_id']
+						break
 				fh.close()
 fb.close()
