@@ -1,5 +1,7 @@
 import urllib2
 import re
+import os.path
+import pickle
 
 def get_pdbs(protein_id):
     """Get pdbs from uniprot for uniprot protein id"""
@@ -34,8 +36,16 @@ def get_pdbs(protein_id):
             pdbs.append(fields[1].strip())
     return pdbs
 
+
 def get_family_uniprot(protein_id):
     """Get the SCOP family of a protein found by it's uniprot accession"""
+    #first try to find a cached result
+    if (os.path.exists(os.path.join('cache', protein_id + '_SCOP.pkl'))):
+        f = open(os.path.join('cache', protein_id + '_SCOP.pkl'), 'rb')
+        p = pickle.load(f)
+        f.close()
+        return p
+    
     pdbs = get_pdbs(protein_id)
     family = ""
     n = 0
@@ -46,10 +56,29 @@ def get_family_uniprot(protein_id):
             return ""
         family = get_family_pdb(pdbs[n])
         n = n + 1
+    #write to file system cache
+    f = open(os.path.join('cache', protein_id + '_SCOP.pkl'), 'wb')
+    pickle.dump(family, f)
+    f.close()
     return family
 
 def get_family_pdb(pdb):
-    """Get the SCOP family of a protein found by an PDB id"""
+    """Get the SCOP family of a protein found by an PDB id, cached"""
+    #first try to find a cached result
+    if (os.path.exists(os.path.join('cache', pdb + '_SCOP.pkl'))):
+        f = open(os.path.join('cache', pdb + '_SCOP.pkl'), 'rb')
+        p = pickle.load(f)
+        f.close()
+        return p
+    #write to file system cache
+    r = get_family_pdb_uc(pdb)
+    f = open(os.path.join('cache', pdb + '_SCOP.pkl'), 'wb')
+    pickle.dump(r, f)
+    f.close()
+    return r
+
+def get_family_pdb_uc(pdb):
+    """Get the SCOP family of a protein found by an PDB id, uncached"""
     #Query the scop database
     baseUrl = 'http://scop.mrc-lmb.cam.ac.uk/scop/search.cgi?lev=fa&pdb='
     url = baseUrl + pdb
