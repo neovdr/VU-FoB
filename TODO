@@ -11,8 +11,6 @@ test
 * BLAST on max e-value instead of max results
 * filter on e-value in BLAST
 * research what first result in BLAST means
-* datastructure pfam
-* make pfam work for list of proteins
 * output benchmark file
   - benchmark SCOP (same family)
   - benchmark GOterms (homologue if one functional annotation with suitable
