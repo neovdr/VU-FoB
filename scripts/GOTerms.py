@@ -1,4 +1,3 @@
-import string
 import re
 import urllib2
 from copy import copy
@@ -102,17 +101,27 @@ def getGOTerms(protein_id):
     baseUrl = 'http://www.ebi.ac.uk/QuickGO/GAnnotation?protein='
     url = baseUrl + protein_id + '&format=tsv'	
     fh = urllib2.urlopen(url)
-
+    result = fh.read()
+    fh.close()
+    
+    #Save the result
+    output = protein_id + '_GOTerms.txt'
+    o = open(output, 'w') 
+    o.write(result) 
+    o.close()
+    
+    f = open(protein_id + "_GOTerms.txt", 'r')
     terms = GOTerms(protein_id)
-    fh.next() # skip headers
-    for line in fh:
+    f.next() # skip headers
+    for line in f:
         r = re.split("\t", line)
         terms.add_term(r[6], r[7], r[9], r[8])
-        aspect = r[11]
+        #aspect = r[11]
 
     fh.close()
     return terms
 
-f = open('proteins.txt', 'r')
-for line in f:
-    print getGOTerms(line.strip("\n")).filter_evidence_class(EC_EXPERIMENTAL)
+if __name__ == "__main__":
+    f = open('proteins.txt', 'r')
+    for line in f:
+        print getGOTerms(line.strip("\n")).filter_evidence_class(EC_EXPERIMENTAL)
