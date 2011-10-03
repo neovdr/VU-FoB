@@ -2,7 +2,7 @@ import urllib2
 from xml.etree.ElementTree import parse
 
 def get_clan_id(family_id):
-	"""Get the clan accessions of a Pfam family"""
+	"""Get a list of clans of a Pfam family"""
 	#Query Pfam
 	baseUrl = 'http://pfam.sanger.ac.uk/family?output=xml&acc='
 	url = baseUrl + family_id
@@ -23,31 +23,40 @@ def get_clan_id(family_id):
 	for entry in root.findall("{http://pfam.sanger.ac.uk/}entry"):
 		clan_membership = entry.find("{http://pfam.sanger.ac.uk/}clan_membership")
 		if (clan_membership != None):
-			print 'Clan Accesion ID: ' + clan_membership.attrib['clan_acc']
-			print 'Clan ID: ' + clan_membership.attrib['clan_id']
+			clan_ids.append({'accession' : clan_membership.attrib['clan_acc'],  
+							 'id' : clan_membership.attrib['clan_id']})
+	return clan_ids
 
-def get_accessions(protein_id):
-	f = open(line.strip('\n') + "_Pfam.txt", 'r')
-	# Parse the XML file into a hierarchical tree
+def get_families(protein_id):
+	"""Get a list of Pfam families for a protein id"""
+	baseUrl = 'http://pfam.sanger.ac.uk/protein?output=xml&acc=' 
+	url = baseUrl + protein_id
+	fh = urllib2.urlopen(url) 
+	result = fh.read()
+	fh.close()
+	#Save the result
+	output = protein_id + "_Pfam.txt"  
+	o = open(output, 'w') 
+	o.write(result) 
+	o.close()
+	f = open(protein_id + "_Pfam.txt", 'r')
 	tree = parse(f)
 	f.close()
-	# Set an element to point to the root
 	root = tree.getroot()
-	last_family_accession = '' # temporary variable to detect double family 
-	#Access the tree structure
+	last_family_accession = '' # temporary variable to detect double family
+	families = []
 	for entry in root:
-		# Get to the match entries
 		for match in entry.find("{http://pfam.sanger.ac.uk/}matches"):
-			# If it is not a domain of unknown function and we haven't already parsed the same family accession
-			if ((last_family_accession != match.attrib['accession'])
-					and (match.attrib['id'].find('DUF') == -1)):
-				print 'Family Accesion ID: ' + match.attrib['accession']
-				print 'Family ID: ' + match.attrib['id']
+			if ((last_family_accession != match.attrib['accession']) # we didn't parse this before
+					and (match.attrib['id'].find('DUF') == -1)): # it's not a domain of unknown function
+				families.append({'accession' : match.attrib['accession'],
+								 'id' : match.attrib['id'],
+								 'clans' : get_clan_id(match.attrib['accession'])})
 				last_family_accession = match.attrib['accession']
-				get_clan_id(match.attrib['accession'])
+	return families	
 				
 if __name__ == "__main__":
 	fb = open ('proteins.txt', 'r')
 	for line in fb:
-		get_accessions(line)
+		print get_families(line.strip("\n"))
 	fb.close()
