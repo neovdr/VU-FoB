@@ -1,57 +1,62 @@
-
-# Get data from GO files
-
-# Import libraries
 import urllib2 
-import string # Library for string operations
 from xml.etree.ElementTree import parse
-sectmp= 'DUF'
-# Open a Pfam File
-fb = open ('proteins.txt', 'r')
-for line in fb:
-	f = open(line.strip('\n') + "_Pfam.txt", 'r')
-	# Parse the XML file into a hierarchical tree
+
+def get_clan_id(family_id):
+	"""Get a list of clans of a Pfam family"""
+	#Query Pfam
+	baseUrl = 'http://pfam.sanger.ac.uk/family?output=xml&acc='
+	url = baseUrl + family_id
+	fh = urllib2.urlopen(url) 
+	result = fh.read()
+	fh.close() 
+	#Save the result from Pfam
+	output = family_id + "_Pfam.xml"  
+	o = open(output, 'w') 
+	o.write(result) 
+	o.close()
+	#Parse the result from Pfam to get the clan
+	f = open( family_id + "_Pfam.xml", 'r')
 	tree = parse(f)
 	f.close()
-	# Set an element to point to the root
-	elem = tree.getroot()
-	tmp = '*'
-	#Access the tree structure
-	for node in elem:
-		# Get to the match entries
-		for node in node[3]:
-			# If it is not a domain of unknown function and we haven't already parsed the same family accession
-			
-			if (tmp != node.attrib['accession']) and (node.attrib['id'].find(sectmp) == -1):
-				# Do something with the matches!
-				print 'Family Accesion ID: ' + node.attrib['accession']
-				print 'Family ID: ' +node.attrib['id']
-				#Access Pfam again with the accession ID to find the clan of the family
-				tmp = node.attrib['accession']
-				baseUrl = 'http://pfam.sanger.ac.uk/family?output=xml&acc='
-				url = baseUrl + node.attrib['accession']
-				fh = urllib2.urlopen(url) 
-				result = fh.read() 
-				#Save the output
-				output = node.attrib['accession'] + "_Pfam.txt"  
-				o = open(output, 'w') 
-				o.write(result) 
-				o.close() 
-				#Parse the XML file to get the clan
-				f= open( node.attrib['accession'] + "_Pfam.txt",'r')
-				sectree = parse(f)
-				f.close()
-				secelem = sectree.getroot()
-				#Get to the Clan entry
-				for node in secelem:
-					# Do something with the clan!
-					if (node[2].text== None):
-						print 'Clan Accesion ID: ' + node[2].attrib['clan_acc']
-						print 'Clan ID: ' + node[2].attrib['clan_id']
-					else:
-						#There is a pesky comment in the way. Look one item up
-						print 'Clan Accesion ID: ' + node[1].attrib['clan_acc']
-						print 'Clan ID: ' + node[1].attrib['clan_id']
-					
-				fh.close()
-fb.close()
+	root = tree.getroot()
+	clan_ids = []
+	for entry in root.findall("{http://pfam.sanger.ac.uk/}entry"):
+		clan_membership = entry.find("{http://pfam.sanger.ac.uk/}clan_membership")
+		if (clan_membership != None):
+			clan_ids.append({'accession' : clan_membership.attrib['clan_acc'],  
+							 'id' : clan_membership.attrib['clan_id']})
+	return clan_ids
+
+def get_families(protein_id):
+	"""Get a list of Pfam families for a protein id"""
+	baseUrl = 'http://pfam.sanger.ac.uk/protein?output=xml&acc=' 
+	url = baseUrl + protein_id
+	fh = urllib2.urlopen(url) 
+	result = fh.read()
+	fh.close()
+	#Save the result
+	output = protein_id + "_Pfam.txt"  
+	o = open(output, 'w') 
+	o.write(result) 
+	o.close()
+	f = open(protein_id + "_Pfam.txt", 'r')
+	tree = parse(f)
+	f.close()
+	root = tree.getroot()
+	last_family_accession = '' # temporary variable to detect double family
+	families = []
+	for entry in root:
+		for match in entry.find("{http://pfam.sanger.ac.uk/}matches"):
+			if ((last_family_accession != match.attrib['accession']) # we didn't parse this before
+					and (match.attrib['id'].find('DUF') == -1)): # it's not a domain of unknown function
+				families.append({'accession' : match.attrib['accession'],
+								 'id' : match.attrib['id'],
+								 'clans' : get_clan_id(match.attrib['accession'])})
+				last_family_accession = match.attrib['accession']
+	return families	
+				
+if __name__ == "__main__":
+	fb = open ('proteins.txt', 'r')
+	for line in fb:
+		print get_families(line.strip("\n"))
+	fb.close()
