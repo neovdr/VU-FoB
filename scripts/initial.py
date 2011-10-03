@@ -1,6 +1,5 @@
 #Create GO Term PFAM and SCOP files for proteins in text file
 import urllib2 
-import SCOP
 
 f = open('proteins.txt', 'r') 
 for line in f: 
