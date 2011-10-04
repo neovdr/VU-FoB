@@ -1,6 +1,7 @@
 import PfamData
 import SCOP
 import GOTerms
+import BLAST
 
 def benchmark_scop(scop_result_a, scop_result_b):
     if scop_result_a == "" or scop_result_b == "":
@@ -9,16 +10,20 @@ def benchmark_scop(scop_result_a, scop_result_b):
         return 1
     else:
         return 0
-    
+
+def benchmark(query_protein_id):
+    query_scop_family = SCOP.get_family_uniprot(query_protein_id)
+    benchmarks = []
+    for blast_result in BLAST.blast(query_protein_id):
+        for hit_protein_id in blast_result['subjects']:
+            hit_scop_family = SCOP.get_family_uniprot(hit_protein_id)
+            benchmarks.append((
+                query_protein_id,
+                benchmark_scop(query_scop_family, hit_scop_family),
+                blast_result['evalue']))
+    return benchmarks
+
 if __name__ == '__main__':
-    import BLAST
     f = open('proteins.txt', 'r') 
     for line in f:
-        p_a = line.strip()
-        s_a = SCOP.get_family_uniprot(p_a)
-        for blast_result in BLAST.blast(p_a):
-            for p_b in blast_result['subjects']:
-                s_b = SCOP.get_family_uniprot(p_b)
-                print(p_a + "(" + s_a + ") : " +
-                      p_b + "(" + s_b + ") ::: " +
-                      str(benchmark_scop(s_a, s_b)))
+        print benchmark(line.strip("\n"))

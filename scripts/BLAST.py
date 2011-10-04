@@ -37,7 +37,7 @@ def query_server(protein_id):
         print "Waiting {0:d} seconds for BLAST results".format(wait_time)
         sleep(wait_time)
         baseurl = 'http://www.ncbi.nlm.nih.gov/blast/Blast.cgi?CMD=Get&RID='
-        url = baseurl + rid + '&FORMAT_OBJECT=Alignment&ALIGNMENT_VIEW=Tabular&FORMAT_TYPE=Text&ALIGNMENTS=5'
+        url = baseurl + rid + '&FORMAT_OBJECT=Alignment&ALIGNMENT_VIEW=Tabular&FORMAT_TYPE=Text&ALIGNMENTS=100'
         fh = urllib2.urlopen(url)
         result = fh.read() 
         fh.close()
@@ -64,7 +64,7 @@ def parse_id(s):
     #FIXME we only deal with uniprot ids
     cols = re.split("\|", s)
     if cols[2] == "sp":
-        m = re.search("^(P.*)\..", cols[3])
+        m = re.search("^(.*)\..", cols[3])
         if m:
             return m.groups()[0]
     return ""
@@ -97,15 +97,16 @@ def parse_blast_result(s):
         
 def blast(protein_id):
     #first try to find a cached result
-#    if (os.path.exists(os.path.join('cache', protein_id + '_BLAST.pkl'))):
-#        f = open(os.path.join('cache', protein_id + '_BLAST.pkl'), 'rb')
-#        p = pickle.load(f)
-#        f.close()
-#        return p
+    if (os.path.exists(os.path.join('cache', protein_id + '_BLAST.pkl'))):
+        f = open(os.path.join('cache', protein_id + '_BLAST.pkl'), 'rb')
+        p = pickle.load(f)
+        f.close()
+        return p
     result = query_server(protein_id)
     #Find the result between the PRE tags
     m = re.search("^<PRE>(.*)^</PRE>", result, re.MULTILINE + re.DOTALL)
     r = parse_blast_result(m.groups()[0])
+    r.sort(key=lambda hit: hit['evalue'])
     #write to file system cache
     f = open(os.path.join('cache', protein_id + '_BLAST.pkl'), 'wb')
     pickle.dump(r, f)
