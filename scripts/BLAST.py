@@ -8,8 +8,8 @@ import urllib2
 import pickle
 import os.path
 
-def query_server(protein_id):
-    if (os.path.exists(protein_id + '_BLAST.html')):
+def query_server(protein_id, n_alignments=10):
+    if (os.path.exists(protein_id + "_BLAST( " + str(n_alignments) + ").html")):
         f = open(protein_id + '_BLAST.html')
         result = f.read()
         f.close()
@@ -37,7 +37,7 @@ def query_server(protein_id):
         print "Waiting {0:d} seconds for BLAST results".format(wait_time)
         sleep(wait_time)
         baseurl = 'http://www.ncbi.nlm.nih.gov/blast/Blast.cgi?CMD=Get&RID='
-        url = baseurl + rid + '&FORMAT_OBJECT=Alignment&ALIGNMENT_VIEW=Tabular&FORMAT_TYPE=Text&ALIGNMENTS=100'
+        url = baseurl + rid + '&FORMAT_OBJECT=Alignment&ALIGNMENT_VIEW=Tabular&FORMAT_TYPE=Text&ALIGNMENTS=' + str(n_alignments)
         fh = urllib2.urlopen(url)
         result = fh.read() 
         fh.close()
@@ -53,7 +53,7 @@ def query_server(protein_id):
         wait_time = 60
     
     #Save the result
-    output = protein_id + "_BLAST.html"  
+    output = protein_id + "_BLAST( " + str(n_alignments) + ").html"  
     o = open(output, 'w') 
     o.write(result) 
     o.close()
@@ -106,6 +106,7 @@ def blast(protein_id):
     #Find the result between the PRE tags
     m = re.search("^<PRE>(.*)^</PRE>", result, re.MULTILINE + re.DOTALL)
     r = parse_blast_result(m.groups()[0])
+    print len(r)
     r.sort(key=lambda hit: hit['evalue'])
     #write to file system cache
     f = open(os.path.join('cache', protein_id + '_BLAST.pkl'), 'wb')
