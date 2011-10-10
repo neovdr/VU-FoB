@@ -8,7 +8,7 @@ import urllib2
 import pickle
 import os.path
 
-def query_server(protein_id, n_alignments=10):
+def query_server(protein_id, n_alignments=50):
     if (os.path.exists(protein_id + "_BLAST( " + str(n_alignments) + ").html")):
         f = open(protein_id + '_BLAST.html')
         result = f.read()
