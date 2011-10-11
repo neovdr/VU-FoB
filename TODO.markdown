@@ -1,33 +1,25 @@
 # Biological Background
-* literature on threshold of e value BLAST
 
 # Scripts
-* parse blast to get a list of hits with
-    - protein id
-    - e-value
-    - score bits
 * BLAST on max e-value instead of max results
 * filter on e-value in BLAST
-* research what first result in BLAST means
 * output benchmark file
-  - benchmark SCOP (same family)
   - benchmark GOterms (homologue if one functional annotation with suitable
     evidence agrees)
   - benchmark Pfam (same family)
   - weighting function
-* draw ROC curves
 
-Maybe
+### Maybe
 
 * quality check of benchmark (GOTerms) on random proteins
 
 # Report
 
 * Waiting for feedback
+* Rationale for not using false negatives and true negatives
 
 # Discussion
 
 * Rationale about benchmark (SCOP, GOTerms, Pfam, combination)
-* Rationale about BLAST
 * Discussion about results
 
