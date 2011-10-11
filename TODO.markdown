@@ -4,10 +4,11 @@
 * BLAST on max e-value instead of max results
 * filter on e-value in BLAST
 * output benchmark file
-  - benchmark GOterms (homologue if one functional annotation with suitable
-    evidence agrees)
-  - benchmark Pfam (same family)
+  - benchmark GOterms (homologue if n functional/process annotations with suitable
+    evidence agree)
   - weighting function
+* SCOP
+  - Benchmark on superfamily instead of family
 
 ### Maybe
 
