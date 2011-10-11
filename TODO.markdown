@@ -1,7 +1,7 @@
-=== Biological Background ===
+# Biological Background
 * literature on threshold of e value BLAST
 
-== Scripts ===
+# Scripts
 * parse blast to get a list of hits with
     - protein id
     - e-value
@@ -21,11 +21,11 @@ Maybe
 
 * quality check of benchmark (GOTerms) on random proteins
 
-=== Report ===
+# Report
 
 * Waiting for feedback
 
-=Discussion=
+# Discussion
 
 * Rationale about benchmark (SCOP, GOTerms, Pfam, combination)
 * Rationale about BLAST
