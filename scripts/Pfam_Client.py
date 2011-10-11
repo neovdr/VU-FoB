@@ -46,7 +46,10 @@ def get_families(protein_id):
 	last_family_accession = '' # temporary variable to detect double family
 	families = []
 	for entry in root:
-		for match in entry.find("{http://pfam.sanger.ac.uk/}matches"):
+                matches = entry.find("{http://pfam.sanger.ac.uk/}matches")
+                if matches == None:
+                    continue
+		for match in matches:
 			if ((last_family_accession != match.attrib['accession']) # we didn't parse this before
 					and (match.attrib['id'].find('DUF') == -1)): # it's not a domain of unknown function
 				families.append({'accession' : match.attrib['accession'],
