@@ -3,29 +3,36 @@ import SCOP
 import GOTerms
 import BLAST
 
-def benchmark_scop(scop_result_a, scop_result_b):
-    if scop_result_a == "" or scop_result_b == "":
-        return 'u' 
-    elif scop_result_a == scop_result_b:
-        return 1
-    else:
-        return 0
+class Method:
 
-def benchmark(query_protein_id):
-    query_scop_family = SCOP.get_family_uniprot(query_protein_id)
+    def get_result(self, protein_id):
+        raise NotImplementedError()
+
+    def benchmark(self, result_a, result_b):
+        raise NotImplementedError()
+
+class SCOP_B(Method):
+    def get_result(self, protein_id):
+        return SCOP.get_family_uniprot(protein_id)
+
+    def benchmark(self, result_a, result_b):
+        if result_a == "" or result_b == "":
+            return 'u' 
+        elif result_a == result_b:
+            return 1
+        else:
+            return 0
+
+def benchmark(query_protein_id, method=SCOP_B()):
+    query_result = method.get_result(query_protein_id)
+    blast_results = BLAST.blast(query_protein_id)
     benchmarks = []
-    n = 0
-    b = BLAST.blast(query_protein_id)
-    print b
-    print len(b)
-    for blast_result in b:
-        print "BLAST " + str(n)
-        n = n + 1
+    for blast_result in blast_results:
         for hit_protein_id in blast_result['subjects']:
-            hit_scop_family = SCOP.get_family_uniprot(hit_protein_id)
+            hit_result = method.get_result(hit_protein_id)
             benchmarks.append({
                 'protein_id' : hit_protein_id,
-                'benchmark' : benchmark_scop(query_scop_family, hit_scop_family),
+                'benchmark' : method.benchmark(query_result, hit_result),
                 'evalue' : blast_result['evalue']})
     return benchmarks
 
