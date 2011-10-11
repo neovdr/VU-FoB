@@ -34,9 +34,9 @@ def roc_plot(benchmark, title="ROC plot", filename=""):
 
 if __name__ == '__main__':
     f = open('proteins.txt', 'r')
-    f.readline()
-    protein_id = f.readline().strip("\n")
-    b = benchmark(protein_id)
-    roc_plot(b,
-            title="ROC plot SCOP " + protein_id,
-            filename="roc_plot_" + protein_id)
+    for line in f:
+        protein_id = line.strip("\n")
+        b = benchmark(protein_id)
+        roc_plot(b,
+                title="ROC plot SCOP " + protein_id,
+                filename="roc_plot_" + protein_id)

@@ -4,14 +4,20 @@ import GO_Client
 import BLAST_Client
 
 class Method:
+    """A method to compare the performance of two methods to one goldens
+       standard."""
 
     def get_result(self, protein_id):
+        """Get the result of the golden standard."""
         raise NotImplementedError()
 
     def benchmark(self, result_a, result_b):
+        """Compare two results of the get_result method."""
         raise NotImplementedError()
 
 class SCOP(Method):
+    """Benchmark using the SCOP families"""
+
     def get_result(self, protein_id):
         return SCOP_Client.get_family_uniprot(protein_id)
 
@@ -23,16 +29,43 @@ class SCOP(Method):
         else:
             return 0
 
-def benchmark(query_protein_id, method=SCOP()):
+class Pfam(Method):
+    """Benchmark using the SCOP families"""
+
+    def get_result(self, protein_id):
+        return Pfam_Client.get_families(protein_id)
+
+    def benchmark(self, results_a, results_b):
+        result = "u"
+        for result_a in results_a:
+            for result_b in results_b:
+                if (len(result_a['clans']) > 1) or (len(result_b['clans']) > 1):
+                    print "ERROR: benchmark Pfam does not implement multiple clans"
+                if (len(result_a['clans']) == 0) or (len(result_b['clans']) == 0):
+                    continue
+                elif result_a['clans'][0]['accession'] == result_b['clans'][0]['accession']:
+                    return 1
+                else:
+                    result = 0
+        return result
+
+def benchmark(query_protein_id, method=Pfam()):
     query_result = method.get_result(query_protein_id)
     blast_results = BLAST_Client.blast(query_protein_id)
     benchmarks = []
     for blast_result in blast_results:
         for hit_protein_id in blast_result['subjects']:
             hit_result = method.get_result(hit_protein_id)
+            print query_protein_id
+            print hit_protein_id
+            print query_result
+            print hit_result
+            b = method.benchmark(query_result, hit_result)
+            print b
+            print "-------------------------------------"
             benchmarks.append({
                 'protein_id' : hit_protein_id,
-                'benchmark' : method.benchmark(query_result, hit_result),
+                'benchmark' : b,
                 'evalue' : blast_result['evalue']})
     return benchmarks
 
