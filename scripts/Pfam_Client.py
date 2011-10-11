@@ -1,21 +1,24 @@
 import urllib2 
 from xml.etree.ElementTree import parse
+import os.path
+
 
 def get_clan_id(family_id):
 	"""Get a list of clans of a Pfam family"""
-	#Query Pfam
-	baseUrl = 'http://pfam.sanger.ac.uk/family?output=xml&acc='
-	url = baseUrl + family_id
-	fh = urllib2.urlopen(url) 
-	result = fh.read()
-	fh.close() 
-	#Save the result from Pfam
-	output = family_id + "_Pfam.xml"  
-	o = open(output, 'w') 
-	o.write(result) 
-	o.close()
+        cache_filename = family_id + "_Pfam-clans.xml"  
+        if not (os.path.exists(cache_filename)):
+            # If we didn't cache the result get it from the server
+            baseUrl = 'http://pfam.sanger.ac.uk/family?output=xml&acc='
+            url = baseUrl + family_id
+            fh = urllib2.urlopen(url) 
+            result = fh.read()
+            fh.close() 
+            #Save the result
+            o = open(cache_filename, 'w') 
+            o.write(result) 
+            o.close()
 	#Parse the result from Pfam to get the clan
-	f = open( family_id + "_Pfam.xml", 'r')
+	f = open(cache_filename, 'r')
 	tree = parse(f)
 	f.close()
 	root = tree.getroot()
@@ -29,17 +32,19 @@ def get_clan_id(family_id):
 
 def get_families(protein_id):
 	"""Get a list of Pfam families for a protein id"""
-	baseUrl = 'http://pfam.sanger.ac.uk/protein?output=xml&acc=' 
-	url = baseUrl + protein_id
-	fh = urllib2.urlopen(url) 
-	result = fh.read()
-	fh.close()
-	#Save the result
-	output = protein_id + "_Pfam.txt"  
-	o = open(output, 'w') 
-	o.write(result) 
-	o.close()
-	f = open(protein_id + "_Pfam.txt", 'r')
+        cache_filename = protein_id + "_Pfam-families.xml"  
+        if not (os.path.exists(cache_filename)):
+            # If we didn't cache the result get it from the server
+            baseUrl = 'http://pfam.sanger.ac.uk/protein?output=xml&acc=' 
+	    url = baseUrl + protein_id
+	    fh = urllib2.urlopen(url) 
+	    result = fh.read()
+	    fh.close()
+	    #Save the result
+	    o = open(cache_filename, 'w') 
+	    o.write(result) 
+	    o.close()
+	f = open(cache_filename, 'r')
 	tree = parse(f)
 	f.close()
 	root = tree.getroot()

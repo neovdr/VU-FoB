@@ -49,20 +49,14 @@ class Pfam(Method):
                     result = 0
         return result
 
-def benchmark(query_protein_id, method=Pfam()):
+def benchmark(query_protein_id, method=Pfam(), blast_service='plain'):
     query_result = method.get_result(query_protein_id)
-    blast_results = BLAST_Client.blast(query_protein_id)
+    blast_results = BLAST_Client.blast(query_protein_id, service=blast_service)
     benchmarks = []
     for blast_result in blast_results:
         for hit_protein_id in blast_result['subjects']:
             hit_result = method.get_result(hit_protein_id)
-            print query_protein_id
-            print hit_protein_id
-            print query_result
-            print hit_result
             b = method.benchmark(query_result, hit_result)
-            print b
-            print "-------------------------------------"
             benchmarks.append({
                 'protein_id' : hit_protein_id,
                 'benchmark' : b,

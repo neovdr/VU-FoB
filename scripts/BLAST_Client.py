@@ -1,21 +1,55 @@
-# Fundamentals of Bioinformatics
-# Exercise 5
-# Get matching sequences using NCBI BLAST
+"""
+A client for the BLAST service
 
-from time import sleep
+A client for the BLAST service located at http://blast.ncbi.nlm.nih.gov/.
+The blast() function is the main entry.
+"""
+import time
 import re
 import urllib2
 import pickle
 import os.path
 
-def query_server(protein_id, n_alignments=50):
-    if (os.path.exists(protein_id + "_BLAST( " + str(n_alignments) + ").html")):
-        f = open(protein_id + '_BLAST.html')
+def query_server(protein_id, n_alignments=50, service='plain',
+        expect=100, filter_lc=True):
+    """Query the BLAST server using blastp.
+    
+    Returns text returned from the BLAST service. Also performs caching upon
+    this result. Provide either the number of alignemns as n_alignments or the
+    maximum e value as evalue, not both.
+    
+    Arguments:
+        protein_id -- uniprot protein_id to query
+        n_alignments -- The number of alignments to query for. Might return more
+            or less.
+        max_evalue -- The results have this maximum evalue.
+        service -- plain or psi
+        expect -- Expected number of hits by random chance. As explained in
+            http://www.ncbi.nlm.nih.gov/BLAST/blastcgihelp.shtml#expect
+        filter -- filter regions of low complexity
+    """
+    # Caching
+    cache_filename = (protein_id + "_BLAST(" +
+                      str(n_alignments)
+                      + ',' + service
+                      + ',' + str(expect)
+                      + ',' + str(filter_lc) +
+                      ").html")
+    if (os.path.exists(cache_filename)):
+        f = open(cache_filename)
         result = f.read()
         f.close()
         return result
-    baseUrl = 'http://blast.ncbi.nlm.nih.gov/Blast.cgi?CMD=Put&QUERY='
-    url = baseUrl + protein_id + '&DATABASE=swissprot&PROGRAM=blastp&FILTER=T&EXPECT=100&FORMAT_TYPE=Text'
+
+    # Do the query / request
+    url = ('http://blast.ncbi.nlm.nih.gov/Blast.cgi?CMD=Put' + 
+          '&QUERY=' + protein_id +
+          '&DATABASE=swissprot' + 
+          '&PROGRAM=blastp'
+          '&FILTER=' + ('T' if filter_lc else 'F') +
+          '&EXPECT=' + str(expect) +
+          '&FORMAT_TYPE=Text' +
+          '&SERVICE=' + service)
     fh = urllib2.urlopen(url)
     query = fh.read() 
     fh.close() 
@@ -30,14 +64,20 @@ def query_server(protein_id, n_alignments=50):
     m = re.search("^<\!--QBlastInfoBegin\s*RID = (.*)\s*RTOE = (.*)$", query, re.MULTILINE)
     rid = m.groups()[0]
     rtoe = int(m.groups()[1])
-
+    
+    # Wait until result is expected to be finished and retrieve the result.
     status = ""
-    wait_time = rtoe + 1
+    wait_time = rtoe + 5 # Wait some seconds more than requested.
     while (status != "READY"): 
         print "Waiting {0:d} seconds for BLAST results".format(wait_time)
-        sleep(wait_time)
-        baseurl = 'http://www.ncbi.nlm.nih.gov/blast/Blast.cgi?CMD=Get&RID='
-        url = baseurl + rid + '&FORMAT_OBJECT=Alignment&ALIGNMENT_VIEW=Tabular&FORMAT_TYPE=Text&ALIGNMENTS=' + str(n_alignments)
+        time.sleep(wait_time)
+        url = ('http://www.ncbi.nlm.nih.gov/blast/Blast.cgi?CMD=Get'
+               '&FORMAT_OBJECT=Alignment' + 
+               '&ALIGNMENT_VIEW=Tabular' +
+               '&FORMAT_TYPE=Text' +
+               '&RID=' + str(rid) +
+               '&ALIGNMENTS=' + str(n_alignments)
+              )
         fh = urllib2.urlopen(url)
         result = fh.read() 
         fh.close()
@@ -53,23 +93,24 @@ def query_server(protein_id, n_alignments=50):
         wait_time = 60
     
     #Save the result
-    output = protein_id + "_BLAST( " + str(n_alignments) + ").html"  
-    o = open(output, 'w') 
+    o = open(cache_filename, 'w') 
     o.write(result) 
     o.close()
     
     return result
 
 def parse_id(s):
+    """Parse a protein id"""
     #FIXME we only deal with uniprot ids
     cols = re.split("\|", s)
-    if cols[2] == "sp":
+    if cols[2] == "sp": #Uniprot id
         m = re.search("^(.*)\..", cols[3])
         if m:
             return m.groups()[0]
     return ""
 
 def parse_ids(s):
+    """Parse a list of protein ids"""
     ids = []
     for id_s in re.split(";", s):
         i = parse_id(id_s)
@@ -78,6 +119,15 @@ def parse_ids(s):
     return ids
 
 def parse_blast_result(s):
+    """Parse a table of BLAST results.
+    
+        Returns a list of hashes with the keys:
+            query -- The query protein id
+            subjects -- A list of protein ids of hits
+            evalue -- The evalue of these these hits
+            bit-score -- The bit socre of these hits
+    
+    """
     lines = re.split("\n", s)
     blast_hits = []
     for line in lines:
@@ -95,23 +145,49 @@ def parse_blast_result(s):
         blast_hits.append(h)
     return blast_hits
         
-def blast(protein_id):
-    #first try to find a cached result
-    if (os.path.exists(os.path.join('cache', protein_id + '_BLAST.pkl'))):
-        f = open(os.path.join('cache', protein_id + '_BLAST.pkl'), 'rb')
+def blast(protein_id, n_alignments=50, max_evalue=-1, service='plain'):
+    """Query the BLAST server and parse the results.
+
+    Arguments:
+        protein_id -- uniprot protein_id to query
+        n_alignments -- The number of alignments to query for. Might return
+            more or less.
+        max_evalue -- The results have this maximum evalue.
+        
+
+    Returns a list of hashes with the keys:
+        query -- The query protein id
+        subjects -- A list of protein ids of hits
+        evalue -- The evalue of these these hits
+        bit-score -- The bit socre of these hits
+
+    """
+    # Caching
+    cache_filename = os.path.join('cache',
+                                  protein_id + '_BLAST' +
+                                  str((n_alignments,max_evalue,service)) +
+                                  '.pkl')
+    if (os.path.exists(cache_filename)):
+        f = open(cache_filename, 'rb')
         p = pickle.load(f)
         f.close()
         return p
-    result = query_server(protein_id)
-    #Find the result between the PRE tags
+
+    # Query the server
+    result = query_server(protein_id, n_alignments=n_alignments,
+                          service=service)
+    #FIXME do filtering on evalue
+    #Find the result between the PRE tags and parse it
     m = re.search("^<PRE>(.*)^</PRE>", result, re.MULTILINE + re.DOTALL)
     r = parse_blast_result(m.groups()[0])
-    print len(r)
+    # Sort on e value
     r.sort(key=lambda hit: hit['evalue'])
-    #write to file system cache
-    f = open(os.path.join('cache', protein_id + '_BLAST.pkl'), 'wb')
+
+    # Write cache
+    f = open(cache_filename, 'wb')
     pickle.dump(r, f)
     f.close()
+
     return r
 
 if __name__ == "__main__":

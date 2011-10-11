@@ -1,4 +1,4 @@
-from benchmark import benchmark
+import benchmark
 import matplotlib.pyplot as plot
 
 def tp_fp_list(benchmark):
@@ -18,10 +18,7 @@ def tp_fp_list(benchmark):
     return (tp_list, fp_list)
         
 def roc_plot(benchmark, title="ROC plot", filename=""):
-    print benchmark
     (y, x) = tp_fp_list(benchmark)
-    print y
-    print x
     plot.figure()
     plot.title(title)
     plot.xlabel("Number of False Positives")
@@ -30,13 +27,15 @@ def roc_plot(benchmark, title="ROC plot", filename=""):
     plot.plot(x, y, 'k')
     if (filename != ""):
         plot.savefig(filename)
-    plot.show()
+    #plot.show()
 
 if __name__ == '__main__':
     f = open('proteins.txt', 'r')
     for line in f:
         protein_id = line.strip("\n")
-        b = benchmark(protein_id)
+        b = benchmark.benchmark(protein_id,
+                      blast_service='psi',
+                      method=benchmark.Pfam())
         roc_plot(b,
-                title="ROC plot SCOP " + protein_id,
-                filename="roc_plot_" + protein_id)
+                title="ROC plot Pfam PSI-BLAST " + protein_id,
+                filename="roc_plot_pfam_psi_" + protein_id)
