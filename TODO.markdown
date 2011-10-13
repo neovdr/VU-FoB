@@ -17,7 +17,6 @@
 # Report
 
 * Waiting for feedback
-* Rationale for not using false negatives and true negatives
 
 # Discussion
 
