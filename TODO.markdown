@@ -2,8 +2,6 @@
 
 # Scripts
 * output benchmark file
-  - benchmark GOterms (homologue if n functional/process annotations with suitable
-    evidence agree)
   - weighting function
 * SCOP
   - Benchmark on superfamily instead of family

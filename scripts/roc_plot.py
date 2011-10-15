@@ -35,9 +35,9 @@ if __name__ == '__main__':
         protein_id = line.strip("\n")
         b = benchmark.benchmark(protein_id,
                       blast_service='psi',
-                      method=benchmark.Pfam(),
+                      method=benchmark.GeneOntology_SharedTerms(3),
                       n_alignments=200,
-                      max_evalue=0.01)
+                      max_evalue=0.1)
         roc_plot(b,
-                title="ROC plot Pfam PSI-BLAST " + protein_id,
-                filename="roc_plot_pfam_psi_" + protein_id)
+                title="ROC plot GO-3 PSI-BLAST " + protein_id,
+                filename="roc_plot_go-3_psi_" + protein_id)
