@@ -49,9 +49,37 @@ class Pfam(Method):
                     result = 0
         return result
 
-def benchmark(query_protein_id, method=Pfam(), blast_service='plain'):
+class GeneOntology_SharedTerms(Method):
+    """Benchmark using the number of shared GeneOntology terms.
+        
+    If the number of shared terms is higher than a certain threshold the
+    proteins are seen a homologs.
+    """
+
+    def __init__(self, threshold):
+        self.threshold = threshold
+
+    def get_result(self, protein_id):
+        return GO_Client.getGOTerms(protein_id)
+    
+    def benchmark(self, result_a, result_b):
+        shared_count = 0
+        if ((len(result_a.terms) < self.threshold) or
+            (len(result_b.terms) < self.threshold)
+           ): return 'u'
+        for term_a in result_a.terms:
+            for term_b in result_b.terms:
+                if term_a.go_id == term_b.go_id:
+                    shared_count = shared_count + 1
+                    if shared_count >= self.threshold:
+                        return 1
+        return 0
+
+def benchmark(query_protein_id, method=Pfam(), blast_service='plain',
+        max_evalue=None, n_alignments=100):
     query_result = method.get_result(query_protein_id)
-    blast_results = BLAST_Client.blast(query_protein_id, service=blast_service)
+    blast_results = BLAST_Client.blast(query_protein_id, service=blast_service,
+            max_evalue=max_evalue, n_alignments=n_alignments)
     benchmarks = []
     for blast_result in blast_results:
         for hit_protein_id in blast_result['subjects']:
@@ -66,4 +94,4 @@ def benchmark(query_protein_id, method=Pfam(), blast_service='plain'):
 if __name__ == '__main__':
     f = open('proteins.txt', 'r') 
     for line in f:
-        print benchmark(line.strip("\n"))
+        print benchmark(line.strip("\n"), method=GeneOntology_SharedTerms(3))
