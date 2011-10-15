@@ -1,8 +1,6 @@
 # Biological Background
 
 # Scripts
-* BLAST on max e-value instead of max results
-* filter on e-value in BLAST
 * output benchmark file
   - benchmark GOterms (homologue if n functional/process annotations with suitable
     evidence agree)

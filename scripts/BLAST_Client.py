@@ -144,8 +144,8 @@ def parse_blast_result(s):
              'bit-score' : float(cols[12])}
         blast_hits.append(h)
     return blast_hits
-        
-def blast(protein_id, n_alignments=50, max_evalue=-1, service='plain'):
+
+def blast(protein_id, n_alignments=50, max_evalue=None, service='plain'):
     """Query the BLAST server and parse the results.
 
     Arguments:
@@ -176,12 +176,20 @@ def blast(protein_id, n_alignments=50, max_evalue=-1, service='plain'):
     # Query the server
     result = query_server(protein_id, n_alignments=n_alignments,
                           service=service)
-    #FIXME do filtering on evalue
     #Find the result between the PRE tags and parse it
     m = re.search("^<PRE>(.*)^</PRE>", result, re.MULTILINE + re.DOTALL)
     r = parse_blast_result(m.groups()[0])
     # Sort on e value
     r.sort(key=lambda hit: hit['evalue'])
+    # Filter on e value
+    if max_evalue:
+        i = 0
+        for hit in r:
+            if hit['evalue'] > max_evalue:
+                break
+            else:
+                i = i + 1
+        del r[i:len(r)]
 
     # Write cache
     f = open(cache_filename, 'wb')
@@ -194,4 +202,4 @@ if __name__ == "__main__":
     f = open('proteins.txt', 'r') 
     for line in f:
         protein_id = line.strip("\n")
-        print [r['subjects'] for r in blast(protein_id)]
+        print [r for r in blast(protein_id, max_evalue=0.01, n_alignments=200)]
