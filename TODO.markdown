@@ -12,7 +12,11 @@
 
 # Report
 
-* Waiting for feedback
+* Go trough feedback and deal with minor comments
+* Fix references
+* Generate ROC plots
+* Discuss ROC plots
+* Think of more results in the report?
 
 # Discussion
 
