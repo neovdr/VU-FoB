@@ -42,6 +42,8 @@ def query_server(protein_id, n_alignments=50, service='plain',
         return result
 
     # Do the query / request
+	# Here by altering the SERVICE setting in the url PSI-BLAST is used
+	
     url = ('http://blast.ncbi.nlm.nih.gov/Blast.cgi?CMD=Put' + 
           '&QUERY=' + protein_id +
           '&DATABASE=swissprot' + 
