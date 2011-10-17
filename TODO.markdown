@@ -5,6 +5,15 @@
   - weighting function
 * SCOP
   - Benchmark on superfamily instead of family
+* Documentation
+  - BLAST
+  - GO
+  - Pfam
+  - SCOP
+  - benchmark
+  - roc plot
+* check all paramters are factored out as parameters to functions
+* make main.py, with commandline options
 
 ### Maybe
 
