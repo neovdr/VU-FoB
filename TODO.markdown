@@ -14,6 +14,8 @@
   - roc plot
 * check all paramters are factored out as parameters to functions
 * make main.py, with commandline options
+* roc plot title shoud look like: BLAST(e=0.1) Porin OmpF (GO-3)
+* roc plot of random proteins
 
 ### Maybe
 
