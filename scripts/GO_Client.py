@@ -24,13 +24,14 @@ class GOTerm:
         self.evidence.append( (ref, evidence_code) )
 
     def has_evidence(self, evidence_code):
-        """Check wether this term has evidence with a certain code"""
+        """Check whether this term has evidence with a certain code"""
         for (ref, ec) in self.evidence:
             if (ec == evidence_code):
                 return True
         return False
 
     def has_evidence_class(self, evidence_class):
+	"""Check whether this term has evidence with a certain class"""
         for (ref, ec) in self.evidence:
             if (ec in evidence_class):
                 return True
@@ -46,6 +47,7 @@ class GOTerms:
     """Holds the GO term of a protein"""
 
     def __init__(self, protein_id):
+		#Initialize the class with a specific protein_id
         self.protein_id = protein_id
         self.terms = []
 
