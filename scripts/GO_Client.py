@@ -31,7 +31,7 @@ class GOTerm:
         return False
 
     def has_evidence_class(self, evidence_class):
-	"""Check whether this term has evidence with a certain class"""
+        """Check whether this term has evidence with a certain class"""
         for (ref, ec) in self.evidence:
             if (ec in evidence_class):
                 return True
@@ -47,7 +47,7 @@ class GOTerms:
     """Holds the GO term of a protein"""
 
     def __init__(self, protein_id):
-		#Initialize the class with a specific protein_id
+                #Initialize the class with a specific protein_id
         self.protein_id = protein_id
         self.terms = []
 
@@ -101,7 +101,7 @@ class GOTerms:
 def getGOTerms(protein_id):
     """Get the GO terms for and uniprot protein id"""
     baseUrl = 'http://www.ebi.ac.uk/QuickGO/GAnnotation?protein='
-    url = baseUrl + protein_id + '&format=tsv'	
+    url = baseUrl + protein_id + '&format=tsv'  
     fh = urllib2.urlopen(url)
     result = fh.read()
     fh.close()

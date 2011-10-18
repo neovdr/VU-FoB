@@ -6,11 +6,11 @@ import pickle
 def get_pdbs(protein_id):
     """Get pdbs from uniprot for uniprot protein id"""
     #Query uniprot
-	#Build the URL
+    #Build the URL
     baseUrl = 'http://www.uniprot.org/uniprot/'
-    url = baseUrl + protein_id + '.txt'	
+    url = baseUrl + protein_id + '.txt' 
     # Open the URL and read the result
-	fh = urllib2.urlopen(url)
+    fh = urllib2.urlopen(url)
     result = fh.read()
     
     #Save the result
@@ -82,11 +82,11 @@ def get_family_pdb(pdb):
 def get_family_pdb_uc(pdb):
     """Get the SCOP family of a protein found by an PDB id, uncached"""
     #Query the scop database
-	#Build the URL
+    #Build the URL
     baseUrl = 'http://scop.mrc-lmb.cam.ac.uk/scop/search.cgi?lev=fa&pdb='
     url = baseUrl + pdb
     #Open the URL and read the result
-	fh = urllib2.urlopen(url)
+    fh = urllib2.urlopen(url)
     result = fh.read()
     fh.close()
     

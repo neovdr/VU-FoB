@@ -38,6 +38,7 @@ if __name__ == '__main__':
                       method=benchmark.GeneOntology_SharedTerms(3),
                       n_alignments=200,
                       max_evalue=0.1)
+        print "benchmarked"
         roc_plot(b,
                 title="ROC plot GO-3 PSI-BLAST " + protein_id,
                 filename="roc_plot_go-3_psi_" + protein_id)
