@@ -20,22 +20,27 @@ def tp_fp_list(benchmark):
     for hit in benchmark:
         if hit['benchmark'] == 1:
             tp = tp + 1
-        if hit['benchmark'] == "u":
-            fp = fp + 1
+#        if hit['benchmark'] == "u":
+#            fp = fp + 1
         if hit['benchmark'] == 0:
             fp = fp + 1
         tp_list.append(tp)
         fp_list.append(fp)
     return (tp_list, fp_list)
         
-def roc_plot(benchmark, title="ROC plot", filename=""):
+def roc_plot(benchmark, title="ROC plot", filename="", random=None):
+    print benchmark
     (y, x) = tp_fp_list(benchmark)
+    print (y, x)
     plot.figure()
     plot.title(title)
     plot.xlabel("Number of False Positives")
     plot.ylabel("Number of True Positives")
-    plot.axis([0, x[len(x)-1]+1, 0, y[len(y)-1]+1])
-    plot.plot(x, y, 'k')
+    plot.axis([-1, x[len(x)-1]+1, -1, y[len(y)-1]+1])
+    plot.plot(x, y, 'b')
+    if random:
+        (ry, rx) = tp_fp_list(random)
+        plot.plot(rx, ry, 'g')
     if (filename != ""):
         plot.savefig(filename)
     #plot.show()

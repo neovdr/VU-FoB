@@ -17,7 +17,7 @@ def main():
         usage()
         sys.exit(2)
 
-    maxalignments = 100
+    max_alignments = 100
     evalue = 0.1
     methods = []
     for o, a in opts:
@@ -25,7 +25,7 @@ def main():
             usage()
             sys.exit()
         elif o in ("-n", "--max-alignments"):
-            maxalignments = a
+            max_alignments = a
         elif o in ("-e", "--e-value"):
             evalue = a
         elif o in ("-g", "--go"):
@@ -65,11 +65,13 @@ def main():
                       " (" + method.fname() + ")")
         plot_filename = "roc_plot_" + method.name() + "_" + protein_id
         b = benchmark.benchmark(protein_id,
-                      blast_service='plain',
-                      method=method,
-                      n_alignments=maxalignments,
-                      max_evalue=evalue)
-        roc_plot.roc_plot(b, title=plot_title, filename=plot_filename)
+            golden_standard=method,
+            search_method=benchmark.Blast(evalue, max_alignments))
+        b_random = benchmark.benchmark(protein_id,
+             golden_standard=method,
+             search_method=benchmark.RandomUniprot())
+        roc_plot.roc_plot(b, title=plot_title, filename=plot_filename,
+             random=b_random)
     
 
 def usage():

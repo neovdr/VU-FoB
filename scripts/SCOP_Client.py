@@ -10,8 +10,12 @@ def get_pdbs(protein_id):
     baseUrl = 'http://www.uniprot.org/uniprot/'
     url = baseUrl + protein_id + '.txt' 
     # Open the URL and read the result
-    fh = urllib2.urlopen(url)
-    result = fh.read()
+    try:
+        fh = urllib2.urlopen(url)
+        result = fh.read()
+    except urllib2.HTTPError, err:
+        print "Error querying for pdbs"
+        return []
     
     #Save the result
     output = protein_id + "_uniprot.txt"  
@@ -55,7 +59,7 @@ def get_family_uniprot(protein_id):
         if len(pdbs) < n+1:
             #print "no pdbs in scop for: " + protein_id + " (" + str(n) +\
             #    " pdbs tried)"
-            return ""
+            break
         family = get_family_pdb(pdbs[n])
         n = n + 1
     #write to file system cache

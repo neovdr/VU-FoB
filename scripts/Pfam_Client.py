@@ -44,15 +44,21 @@ def get_families(protein_id):
         baseUrl = 'http://pfam.sbc.su.se/protein?output=xml&acc=' 
         url = baseUrl + protein_id
         #Open the URL and read the result
-        fh = urllib2.urlopen(url) 
-        result = fh.read()
-        fh.close()
+        try:
+            fh = urllib2.urlopen(url) 
+            result = fh.read()
+            fh.close()
+        except urllib2.HTTPError, err:
+            result = ""
         #Save the result
         o = open(cache_filename, 'w') 
         o.write(result) 
         o.close()
     #Parse the result from Pfam to get the family
     f = open(cache_filename, 'r')
+    if f.read(10) == "":
+        return []
+    f.seek(0)
     tree = parse(f)
     f.close()
     root = tree.getroot()

@@ -1,3 +1,7 @@
+import os.path
+import random
+import pickle
+
 import Pfam_Client
 import SCOP_Client
 import GO_Client
@@ -79,7 +83,7 @@ class GeneOntology_SharedTerms(Method):
 
     def __init__(self, threshold):
         """Initialise the shared GO term threshold"""
-        self.threshold = threshold
+        self.threshold = int(threshold)
 
     def get_result(self, protein_id):
         """Get the GO term result"""
@@ -119,17 +123,48 @@ class CombineTakeOnes(Method):
     def __init__(list_of_methods):
         pass
 
-def benchmark(query_protein_id, method=Pfam(), blast_service='plain',
-              max_evalue=None, n_alignments=100):
-    query_result = method.get_result(query_protein_id)
-    blast_results = BLAST_Client.blast(query_protein_id, service=blast_service,
-                                       max_evalue=max_evalue,
-                                       n_alignments=n_alignments)
+class Blast():
+
+    def __init__(self, max_evalue=0.1, max_alignments=100):
+        self.max_evalue = max_evalue
+        self.max_alignments = 100
+
+    def search_homologs(self, protein_id):
+        return BLAST_Client.blast(protein_id,
+            max_evalue=self.max_evalue,
+            n_alignments=self.max_alignments)
+
+class RandomUniprot():
+
+    def search_homologs(self, protein_id):
+        # Caching, so we don't generate different random ids all the time
+        cache_filename = os.path.join('cache', 'random.pkl')
+        if (os.path.exists(cache_filename)):
+            f = open(cache_filename, 'rb')
+            p = pickle.load(f)
+            f.close()
+            return p
+        r = []
+        for random_line in random.sample(open('pid.dat', 'r').readlines(), 1000):
+            r.append({'subjects' : [random_line.strip()],
+                      'evalue' : 1000})
+
+        # Write cache
+        f = open(cache_filename, 'wb')
+        pickle.dump(r, f)
+        f.close()
+
+        return r
+
+def benchmark(query_protein_id, golden_standard=Pfam(),
+              search_method=Blast()):
+    query_result = golden_standard.get_result(query_protein_id)
+    blast_results = search_method.search_homologs(query_protein_id)
     benchmarks = []
     for blast_result in blast_results:
         for hit_protein_id in blast_result['subjects']:
-            hit_result = method.get_result(hit_protein_id)
-            b = method.benchmark(query_result, hit_result)
+            hit_result = golden_standard.get_result(hit_protein_id)
+            b = golden_standard.benchmark(query_result, hit_result)
             benchmarks.append({
                 'protein_id' : hit_protein_id,
                 'benchmark' : b,
@@ -139,4 +174,6 @@ def benchmark(query_protein_id, method=Pfam(), blast_service='plain',
 if __name__ == '__main__':
     f = open('proteins.txt', 'r') 
     for line in f:
-        print benchmark(line.strip("\n"), method=GeneOntology_SharedTerms(3))
+        print benchmark(line.strip("\n"),
+                        golden_standard=GeneOntology_SharedTerms(3),
+                        search_method=RandomUniprot())

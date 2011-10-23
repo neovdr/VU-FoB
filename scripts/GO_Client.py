@@ -1,5 +1,6 @@
 import re
 import urllib2
+import os.path
 from copy import copy
 
 # The codes in different evidence classses
@@ -99,28 +100,39 @@ class GOTerms:
         
 
 def getGOTerms(protein_id):
-    """Get the GO terms for and uniprot protein id"""
-    baseUrl = 'http://www.ebi.ac.uk/QuickGO/GAnnotation?protein='
-    url = baseUrl + protein_id + '&format=tsv'  
-    fh = urllib2.urlopen(url)
-    result = fh.read()
-    fh.close()
-    
-    #Save the result
-    output = protein_id + '_GOTerms.txt'
-    o = open(output, 'w') 
-    o.write(result) 
-    o.close()
+    """Get the GO terms for an uniprot protein id
+
+    Arguments:
+        protein_id : The uniprot protein id to search for in GeneOntology
+
+    Result:
+        A GOTerms object, as described above.
+    """
+    cache_filename = (protein_id + "_GOTerms.txt")
+    if not (os.path.exists(cache_filename)):
+        # Query the QuickGO webservice
+        baseUrl = 'http://www.ebi.ac.uk/QuickGO/GAnnotation?protein='
+        url = baseUrl + protein_id + '&format=tsv'  
+        fh = urllib2.urlopen(url)
+        result = fh.read()
+        fh.close()
+        #Save the result
+        o = open(cache_filename, 'w') 
+        o.write(result) 
+        o.close()
     
     f = open(protein_id + "_GOTerms.txt", 'r')
     terms = GOTerms(protein_id)
-    f.next() # skip headers
+    try:
+        f.next() # skip headers
+    except StopIteration, e:
+        pass 
     for line in f:
         r = re.split("\t", line)
         terms.add_term(r[6], r[7], r[9], r[8])
         #aspect = r[11]
 
-    fh.close()
+    f.close()
     return terms
 
 if __name__ == "__main__":
