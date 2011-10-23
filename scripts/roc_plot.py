@@ -1,6 +1,17 @@
 import benchmark
 import matplotlib.pyplot as plot
 
+"""Makes two list for the roc plot, false and true positives.
+
+One counts the false positives, over the total number of results excluding
+ones that have an unknown result in the golden standard. The other does the
+same for the true positives.
+
+Argument:
+    benchmark : The benchmarked list of results. As returned by
+        benchmark.benchmark. 
+
+"""
 def tp_fp_list(benchmark):
     tp = 0
     fp = 0
@@ -34,11 +45,10 @@ if __name__ == '__main__':
     for line in f:
         protein_id = line.strip("\n")
         b = benchmark.benchmark(protein_id,
-                      blast_service='psi',
-                      method=benchmark.GeneOntology_SharedTerms(3),
-                      n_alignments=200,
-                      max_evalue=0.1)
-        print "benchmarked"
+                      blast_service='plain',
+                      method=benchmark.Pfam(),
+                      n_alignments=1000,
+                      max_evalue=0.01)
         roc_plot(b,
-                title="ROC plot GO-3 PSI-BLAST " + protein_id,
-                filename="roc_plot_go-3_psi_" + protein_id)
+                title="ROC plot Pfam BLAST " + protein_id,
+                filename="roc_plot_pfam_plain_" + protein_id)

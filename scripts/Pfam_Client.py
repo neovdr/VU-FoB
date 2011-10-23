@@ -10,7 +10,7 @@ def get_clan_id(family_id):
     if not (os.path.exists(cache_filename)):
         # If we didn't cache the result get it from the server
         #Build the URL
-        baseUrl = 'http://pfam.sanger.ac.uk/family?output=xml&acc='
+        baseUrl = 'http://pfam.sbc.su.se/family?output=xml&acc='
         url = baseUrl + family_id
         #Open the URL and read the result
         fh = urllib2.urlopen(url) 
@@ -41,7 +41,7 @@ def get_families(protein_id):
     if not (os.path.exists(cache_filename)):
         # If we didn't cache the result get it from the server
         #Build the URL
-        baseUrl = 'http://pfam.sanger.ac.uk/protein?output=xml&acc=' 
+        baseUrl = 'http://pfam.sbc.su.se/protein?output=xml&acc=' 
         url = baseUrl + protein_id
         #Open the URL and read the result
         fh = urllib2.urlopen(url) 

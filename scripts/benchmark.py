@@ -33,6 +33,12 @@ class SCOP(Method):
                 #Proteins are of a different family
             return 0
 
+    def name(self):
+        return "scop"
+    
+    def fname(self):
+        return "SCOP"
+
 class Pfam(Method):
     """Benchmark using the Pfam families"""
 
@@ -57,6 +63,12 @@ class Pfam(Method):
                                         # Proteins are of a different clan
                     result = 0
         return result
+
+    def name(self):
+        return "pfam"
+    
+    def fname(self):
+        return "Pfam"
 
 class GeneOntology_SharedTerms(Method):
     """Benchmark using the number of shared GeneOntology terms.
@@ -89,6 +101,12 @@ class GeneOntology_SharedTerms(Method):
                         return 1
         # The shared GO terms are below the shared term threshold. Return
         return 0
+    
+    def name(self):
+        return "GO(" + str(self.threshold) + ")"
+    
+    def fname(self):
+        return "go(" + str(self.threshold) + ")"
 
 class CombineTakeOnes(Method):
     """Benchmark using the combination of different methods
@@ -98,18 +116,16 @@ class CombineTakeOnes(Method):
     Take u otherwise
     """
     
-    def __init__(list_of_methods)
+    def __init__(list_of_methods):
         pass
 
 def benchmark(query_protein_id, method=Pfam(), blast_service='plain',
               max_evalue=None, n_alignments=100):
     query_result = method.get_result(query_protein_id)
-    print "DEBUG: BLASTing"
     blast_results = BLAST_Client.blast(query_protein_id, service=blast_service,
                                        max_evalue=max_evalue,
                                        n_alignments=n_alignments)
     benchmarks = []
-    print "DEBUG: benchmarking"
     for blast_result in blast_results:
         for hit_protein_id in blast_result['subjects']:
             hit_result = method.get_result(hit_protein_id)
