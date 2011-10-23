@@ -1,9 +1,12 @@
-"""
-A client for the BLAST service
+#############################################################################
+# A client for the BLAST service											#
+#																			#
+# A client for the BLAST service located at http://blast.ncbi.nlm.nih.gov/.	#
+# The blast() function is the main entry.									#
+#############################################################################
 
-A client for the BLAST service located at http://blast.ncbi.nlm.nih.gov/.
-The blast() function is the main entry.
-"""
+#!/usr/bin/python
+
 import time
 import re
 import urllib2
@@ -14,18 +17,16 @@ def query_server(protein_id, n_alignments=50, service='plain',
         expect=100, filter_lc=True):
     """Query the BLAST server using blastp.
     
-    Returns text returned from the BLAST service. Also performs caching upon
-    this result. Provide either the number of alignemns as n_alignments or the
-    maximum e value as evalue, not both.
+    Returns text from the BLAST service. Also performs caching upon
+    this result.
     
     Arguments:
         protein_id -- uniprot protein_id to query
-        n_alignments -- The number of alignments to query for. Might return more
-            or less.
-        max_evalue -- The results have this maximum evalue.
+        n_alignments -- The max number of retrieved alignments to query  
         service -- plain or psi
-        expect -- Expected number of hits by random chance. As explained in
-            http://www.ncbi.nlm.nih.gov/BLAST/blastcgihelp.shtml#expect
+        expect -- Expected number of hits by random chance. 
+        		  To limit the results to those having an E value lower than the specified value	
+        		  As explained in http://www.ncbi.nlm.nih.gov/BLAST/blastcgihelp.shtml#expect   
         filter -- filter regions of low complexity
     """
     # Caching
@@ -111,7 +112,7 @@ def parse_id(s):
             return m.groups()[0]
     return ""
 
-def parse_ids(s):
+def parse_list_ids(s):
     """Parse a list of protein ids"""
     ids = []
     for id_s in re.split(";", s):
@@ -141,7 +142,7 @@ def parse_blast_result(s):
             continue
         cols = re.split("\t", line)
         h = {'query' : parse_id(cols[0]),
-             'subjects' : parse_ids(cols[1]),
+             'subjects' : parse_list_ids(cols[1]),
              'evalue' : float(cols[11]),
              'bit-score' : float(cols[12])}
         blast_hits.append(h)
@@ -152,9 +153,8 @@ def blast(protein_id, n_alignments=50, max_evalue=None, service='plain'):
 
     Arguments:
         protein_id -- uniprot protein_id to query
-        n_alignments -- The number of alignments to query for. Might return
-            more or less.
-        max_evalue -- The results have this maximum evalue.
+        n_alignments -- The number of alignments to be displayed. 
+        max_evalue -- The results with the e-value lower than the specified max_evalue
         
 
     Returns a list of hashes with the keys:
