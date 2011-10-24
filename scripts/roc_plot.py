@@ -15,32 +15,42 @@ Argument:
 def tp_fp_list(benchmark):
     tp = 0
     fp = 0
+    u = 0
     tp_list = []
     fp_list = []
     for hit in benchmark:
         if hit['benchmark'] == 1:
             tp = tp + 1
-#        if hit['benchmark'] == "u":
-#            fp = fp + 1
+        if hit['benchmark'] == "u":
+            u = u + 1
         if hit['benchmark'] == 0:
             fp = fp + 1
         tp_list.append(tp)
         fp_list.append(fp)
-    return (tp_list, fp_list)
+    return (tp_list, fp_list, u)
         
-def roc_plot(benchmark, title="ROC plot", filename="", random=None):
+def roc_plot(benchmark, title="ROC plot", filename="", random=None, numbers=True):
     print benchmark
-    (y, x) = tp_fp_list(benchmark)
+    (y, x, u) = tp_fp_list(benchmark)
     print (y, x)
-    plot.figure()
+    fig = plot.figure()
+    ax = fig.add_subplot(111)
     plot.title(title)
     plot.xlabel("Number of False Positives")
     plot.ylabel("Number of True Positives")
     plot.axis([-1, x[len(x)-1]+1, -1, y[len(y)-1]+1])
     plot.plot(x, y, 'b')
     if random:
-        (ry, rx) = tp_fp_list(random)
-        plot.plot(rx, ry, 'g')
+        (ry, rx, ru) = tp_fp_list(random)
+        ax.plot(rx, ry, 'g')
+    if numbers:
+        annotation = ("#TP=" + str(y[len(y)-1]) + "\n" +
+                      "#FP=" + str(x[len(x)-1]) + "\n" +
+                      "#U=" + str(u))
+        plot.figtext(0.01, 0.99, annotation,
+            fontsize=11,
+            horizontalalignment = 'left',
+            verticalalignment = 'top')
     if (filename != ""):
         plot.savefig(filename)
     #plot.show()
