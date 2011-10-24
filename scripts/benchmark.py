@@ -166,14 +166,15 @@ class CombineTakeOnes(Method):
             if not first:
                 name = name + ", "
             name = name + method.fname()
+            first = False
         name = name + ")"
         return name
 
 class Blast():
 
-    def __init__(self, max_evalue=0.1, max_alignments=100):
+    def __init__(self, max_evalue=100, max_alignments=100):
         self.max_evalue = max_evalue
-        self.max_alignments = 100
+        self.max_alignments = max_alignments
 
     def search_homologs(self, protein_id):
         return BLAST_Client.blast(protein_id,

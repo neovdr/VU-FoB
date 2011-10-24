@@ -44,8 +44,14 @@ def roc_plot(benchmark, title="ROC plot", filename="", random=None, numbers=True
         (ry, rx, ru) = tp_fp_list(random)
         ax.plot(rx, ry, 'g')
     if numbers:
-        annotation = ("#TP=" + str(y[len(y)-1]) + "\n" +
-                      "#FP=" + str(x[len(x)-1]) + "\n" +
+        tp = y[len(y)-1]
+        fp = x[len(x)-1]
+        if (tp+fp) > 0:
+            specifity = "Specifity: {:1.2f}".format(float(tp) / float(tp+fp))
+        else:
+            specifity = " Specifity=NA" 
+        annotation = ("#TP=" + str(tp) + "     " + specifity + "\n" +
+                      "#FP=" + str(fp) + "\n" +
                       "#U=" + str(u))
         plot.figtext(0.01, 0.99, annotation,
             fontsize=11,
