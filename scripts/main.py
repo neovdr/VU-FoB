@@ -18,7 +18,7 @@ def main():
         sys.exit(2)
 
     max_alignments = 100
-    evalue = 0.1
+    evalue = 100
     methods = []
     for o, a in opts:
         if o in ("-h", "--help"):
