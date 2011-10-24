@@ -108,6 +108,7 @@ def getGOTerms(protein_id):
     Result:
         A GOTerms object, as described above.
     """
+    # Query the QuickGO service if we don't have the file cached.
     cache_filename = (protein_id + "_GOTerms.txt")
     if not (os.path.exists(cache_filename)):
         # Query the QuickGO webservice
@@ -121,16 +122,16 @@ def getGOTerms(protein_id):
         o.write(result) 
         o.close()
     
+    # Parse the results from QuickGO
     f = open(protein_id + "_GOTerms.txt", 'r')
     terms = GOTerms(protein_id)
     try:
         f.next() # skip headers
     except StopIteration, e:
-        pass 
+        pass # Empty file, no results
     for line in f:
         r = re.split("\t", line)
         terms.add_term(r[6], r[7], r[9], r[8])
-        #aspect = r[11]
 
     f.close()
     return terms

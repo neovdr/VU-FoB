@@ -7,9 +7,6 @@
   - Benchmark on superfamily instead of family
 * Documentation
   - BLAST
-  - GO
-  - Pfam
-  - SCOP
   - benchmark
   - roc plot
 * check all paramters are factored out as parameters to functions
@@ -17,6 +14,7 @@
 * roc plot of random proteins
 * improve main.py
   - Expose full interface of GO terms (what to filter etc.)
+* Show #TP and #FP on plot
 
 ### Maybe
 
