@@ -1,10 +1,6 @@
 # Biological Background
 
 # Scripts
-* output benchmark file
-  - weighting function
-* SCOP
-  - Benchmark on superfamily instead of family
 * Documentation
   - BLAST
   - benchmark

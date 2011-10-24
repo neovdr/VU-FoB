@@ -118,10 +118,56 @@ class CombineTakeOnes(Method):
     Take 1 if one of them has a 1
     Take 0 if one of them has a 0
     Take u otherwise
+
     """
     
-    def __init__(list_of_methods):
-        pass
+    def __init__(self, list_of_methods):
+        self.methods = list_of_methods
+
+    def get_result(self, protein_id):
+        """Get the results from all underlying methods"""
+        results = {}
+        for method in self.methods:
+            results[method.name] = method.get_result(protein_id)
+        return results
+
+    def benchmark(self, result_a, result_b):
+        """Benchmark based on the underlying methods
+
+        Take 1 if one of them has a 1
+        Take 0 if one of them has a 0
+        Take u otherwise
+
+        """
+        benchmark = 'u'
+        for method in self.methods:
+            b = method.benchmark(result_a[method.name], result_b[method.name])
+            if b == 1:
+                return 1
+            if b == 0:
+                benchmark = 0
+        return benchmark
+
+    def name(self):
+        name = "combined("
+        first = True
+        for method in self.methods:
+            if not first:
+                name = name + ","
+            name = name + method.name()
+            first = False
+        name += ")"
+        return name
+
+    def fname(self):
+        name = "Combination ("
+        first = True
+        for method in self.methods:
+            if not first:
+                name = name + ", "
+            name = name + method.fname()
+        name = name + ")"
+        return name
 
 class Blast():
 

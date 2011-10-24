@@ -44,18 +44,32 @@ def main():
         sys.exit(2)
     filename = args[0]
 
-    if len(methods) != 1:
-        print "Please provide one golden standard to use"
+    if len(methods) < 1:
+        print "Please provide at least one golden standard to use"
         usage()
         sys.exit(2)
-    if methods[0][0] == "go":
-        method = benchmark.GeneOntology_SharedTerms(methods[0][1])
-    elif methods[0][0] == "pfam":
-        method = benchmark.Pfam()
-    elif methods[0][0] == "scop":
-        method = benchmark.SCOP()
+    if len(methods) == 1:
+        if methods[0][0] == "go":
+            method = benchmark.GeneOntology_SharedTerms(methods[0][1])
+        elif methods[0][0] == "pfam":
+            method = benchmark.Pfam()
+        elif methods[0][0] == "scop":
+            method = benchmark.SCOP()
+        else:
+            assert False, "We made an unkown method!"
     else:
-        assert False, "We made an unkown method!"
+        ms = []
+        for m in methods:
+            if m[0] == "go":
+                ms.append(benchmark.GeneOntology_SharedTerms(m[1]))
+            elif m[0] == "pfam":
+                ms.append(benchmark.Pfam())
+            elif m[0] == "scop":
+                ms.append(benchmark.SCOP())
+            else:
+                assert False, "We made an unkown method!"
+        method = benchmark.CombineTakeOnes(ms)
+            
 
     f = open(filename, 'r')
     for line in f:
