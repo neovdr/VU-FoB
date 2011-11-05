@@ -1,21 +1,16 @@
 # Biological Background
 
 # Scripts
-* output benchmark file
-  - weighting function
-* SCOP
-  - Benchmark on superfamily instead of family
 * Documentation
   - BLAST
-  - GO
-  - Pfam
-  - SCOP
   - benchmark
   - roc plot
 * check all paramters are factored out as parameters to functions
-* make main.py, with commandline options
-* roc plot title shoud look like: BLAST(e=0.1) Porin OmpF (GO-3)
+* put real protein name in roc plot
 * roc plot of random proteins
+* improve main.py
+  - Expose full interface of GO terms (what to filter etc.)
+* Show #TP and #FP on plot
 
 ### Maybe
 

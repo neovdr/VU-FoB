@@ -2,13 +2,19 @@
 How to run BLAST with a ROC plot:
 
 cd run/
-python ../../scripts/roc-plot.py
+../scripts/main.py -h
+
+With SCOP for example:
+
+cd run/
+../scripts/main.py --scop proteins.txt
+
 
 To run other things:
 
 cd run/
-python ../../scripts/BLAST.py
-python ../../scripts/GOTerms.py
-python ../../scripts/PfamData.py
-python ../../scripts/SCOP.py
+python ../scripts/BLAST.py
+python ../scripts/GOTerms.py
+python ../scripts/PfamData.py
+python ../scripts/SCOP.py
 

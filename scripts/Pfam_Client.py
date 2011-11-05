@@ -2,15 +2,14 @@ import urllib2
 from xml.etree.ElementTree import parse
 import os.path
 
-
-def get_clan_id(family_id):
+def get_clan_ids(family_id):
     """Get a list of clans of a Pfam family"""
     # Caching
     cache_filename = family_id + "_Pfam-clans.xml"  
     if not (os.path.exists(cache_filename)):
         # If we didn't cache the result get it from the server
         #Build the URL
-        baseUrl = 'http://pfam.sanger.ac.uk/family?output=xml&acc='
+        baseUrl = 'http://pfam.sbc.su.se/family?output=xml&acc='
         url = baseUrl + family_id
         #Open the URL and read the result
         fh = urllib2.urlopen(url) 
@@ -36,23 +35,33 @@ def get_clan_id(family_id):
     return clan_ids
 
 def get_families(protein_id):
-    """Get a list of Pfam families for a protein id"""
+    """Get a list of Pfam families and clans for a protein id"""
+    # Query the pfam service. We use a swedish mirror.
     cache_filename = protein_id + "_Pfam-families.xml"  
     if not (os.path.exists(cache_filename)):
         # If we didn't cache the result get it from the server
         #Build the URL
-        baseUrl = 'http://pfam.sanger.ac.uk/protein?output=xml&acc=' 
+        baseUrl = 'http://pfam.sbc.su.se/protein?output=xml&acc=' 
         url = baseUrl + protein_id
         #Open the URL and read the result
-        fh = urllib2.urlopen(url) 
-        result = fh.read()
-        fh.close()
+        try:
+            fh = urllib2.urlopen(url) 
+            result = fh.read()
+            fh.close()
+        except urllib2.HTTPError, err:
+            result = ""
         #Save the result
         o = open(cache_filename, 'w') 
         o.write(result) 
         o.close()
-    #Parse the result from Pfam to get the family
     f = open(cache_filename, 'r')
+
+    # Test for empty file
+    if f.read(10) == "":
+        return [] # Empty file so no results
+    f.seek(0)
+
+    #Parse the result from Pfam to get the family
     tree = parse(f)
     f.close()
     root = tree.getroot()
@@ -66,11 +75,12 @@ def get_families(protein_id):
         for match in matches:
             if ((last_family_accession != match.attrib['accession']) # we didn't parse this before
                 and (match.attrib['id'].find('DUF') == -1)): # it's not a domain of unknown function
-                #Store the data
+                # We found a family in xml tree
                 families.append({'accession' : match.attrib['accession'],
                                  'id' : match.attrib['id'],
-                                 'clans' : get_clan_id(match.attrib['accession'])})
+                                 'clans' : get_clan_ids(match.attrib['accession'])})
                 last_family_accession = match.attrib['accession']
+
     return families 
                 
 if __name__ == "__main__":

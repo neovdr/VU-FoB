@@ -14,7 +14,7 @@ import pickle
 import os.path
 
 def query_server(protein_id, n_alignments=50, service='plain',
-        expect=100, filter_lc=True):
+        expect=1000, filter_lc=True):
     """Query the BLAST server using blastp.
     
     Returns text from the BLAST service. Also performs caching upon

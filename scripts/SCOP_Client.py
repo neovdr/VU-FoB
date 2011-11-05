@@ -10,8 +10,12 @@ def get_pdbs(protein_id):
     baseUrl = 'http://www.uniprot.org/uniprot/'
     url = baseUrl + protein_id + '.txt' 
     # Open the URL and read the result
-    fh = urllib2.urlopen(url)
-    result = fh.read()
+    try:
+        fh = urllib2.urlopen(url)
+        result = fh.read()
+    except urllib2.HTTPError, err:
+        print "Error querying for pdbs from uniprot"
+        return []
     
     #Save the result
     output = protein_id + "_uniprot.txt"  
@@ -40,7 +44,7 @@ def get_pdbs(protein_id):
 
 
 def get_family_uniprot(protein_id):
-    """Get the SCOP family of a protein found by it's uniprot accession"""
+    """Get the SCOP superfamily of a protein found by it's uniprot accession"""
     #first try to find a cached result
     if (os.path.exists(os.path.join('cache', protein_id + '_SCOP.pkl'))):
         f = open(os.path.join('cache', protein_id + '_SCOP.pkl'), 'rb')
@@ -55,7 +59,7 @@ def get_family_uniprot(protein_id):
         if len(pdbs) < n+1:
             #print "no pdbs in scop for: " + protein_id + " (" + str(n) +\
             #    " pdbs tried)"
-            return ""
+            break
         family = get_family_pdb(pdbs[n])
         n = n + 1
     #write to file system cache
@@ -65,7 +69,7 @@ def get_family_uniprot(protein_id):
     return family
 
 def get_family_pdb(pdb):
-    """Get the SCOP family of a protein found by an PDB id, cached"""
+    """Get the SCOP superfamily of a protein found by an PDB id, cached"""
     #first try to find a cached result
     if (os.path.exists(os.path.join('cache', pdb + '_SCOP.pkl'))):
         f = open(os.path.join('cache', pdb + '_SCOP.pkl'), 'rb')
@@ -80,10 +84,10 @@ def get_family_pdb(pdb):
     return r
 
 def get_family_pdb_uc(pdb):
-    """Get the SCOP family of a protein found by an PDB id, uncached"""
+    """Get the SCOP superfamily of a protein found by an PDB id, uncached"""
     #Query the scop database
     #Build the URL
-    baseUrl = 'http://scop.mrc-lmb.cam.ac.uk/scop/search.cgi?lev=fa&pdb='
+    baseUrl = 'http://scop.mrc-lmb.cam.ac.uk/scop/search.cgi?lev=sf&pdb='
     url = baseUrl + pdb
     #Open the URL and read the result
     fh = urllib2.urlopen(url)
@@ -97,7 +101,7 @@ def get_family_pdb_uc(pdb):
     o.close()
     
     #The family should be in the title of the page
-    m = re.search("<title>SCOP: Family: (.*)</title>", result, re.MULTILINE)
+    m = re.search("<title>SCOP: Superfamily: (.*)</title>", result, re.MULTILINE)
     if m:
         return m.groups()[0]
     
